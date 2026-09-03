@@ -1,86 +1,229 @@
 <div id="planet-conqueror" tabindex="0" aria-label="Planet Conqueror game">
   <style>
-    #planet-conqueror{background:light-dark(#dfeaf3,#071019);color:light-dark(#10202c,#ecf7ff);padding:18px;font-family:Inter,system-ui,sans-serif;outline:none;border-radius:0}
+    #planet-conqueror{background:#071019;color:#ecf7ff;padding:18px;font-family:Inter,system-ui,sans-serif;outline:none;min-height:100vh;box-sizing:border-box}
+    #planet-conqueror *{box-sizing:border-box}
     #planet-conqueror .shell{max-width:1180px;margin:0 auto}
     #planet-conqueror .top{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-    #planet-conqueror .title{font-size:22px;font-weight:800;letter-spacing:.5px}.muted{opacity:.7;font-size:13px}
-    #planet-conqueror .hud{display:flex;gap:10px;flex-wrap:wrap}.chip{background:light-dark(#fff,#0e1a25);border:1px solid light-dark(#c8d4dc,#1e3242);padding:8px 10px;border-radius:10px;font-size:13px;min-width:88px}
-    #planet-conqueror .stage{position:relative;border:1px solid light-dark(#b9c7d1,#244154);border-radius:16px;overflow:hidden;background:#0b171f}
+    #planet-conqueror .title{font-size:22px;font-weight:900;letter-spacing:.8px}.muted{opacity:.72;font-size:13px}
+    #planet-conqueror .hud{display:flex;gap:10px;flex-wrap:wrap}.chip{background:#0e1a25;border:1px solid #1e3242;padding:8px 10px;border-radius:10px;font-size:13px;min-width:92px}
+    #planet-conqueror .stage{position:relative;border:1px solid #244154;border-radius:16px;overflow:hidden;background:#0b171f;box-shadow:0 20px 60px rgba(0,0,0,.28)}
     #planet-conqueror canvas{display:block;width:100%;aspect-ratio:16/9;touch-action:none;cursor:crosshair;background:#102a1d}
-    #planet-conqueror .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}.message{background:rgba(0,0,0,.58);backdrop-filter:blur(4px);padding:14px 18px;border-radius:12px;font-weight:800;letter-spacing:.4px;opacity:0;transition:.2s}
-    #planet-conqueror .bottom{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;margin-top:12px}.panel{background:light-dark(#ffffff,#0c1721);border:1px solid light-dark(#c9d6de,#20384a);border-radius:14px;padding:12px}.bar{height:10px;background:light-dark(#dce5ea,#162633);border-radius:999px;overflow:hidden}.fill{height:100%;width:100%}.hp{background:#42c96b}.xp{background:#5da8ff}.conq{background:#f0a83a}
-    #planet-conqueror .row{display:flex;justify-content:space-between;gap:10px;font-size:12px;margin:4px 0 6px}.controls{display:flex;gap:8px;flex-wrap:wrap}.kbd{border:1px solid light-dark(#b9c6ce,#2b4455);border-bottom-width:3px;border-radius:7px;padding:4px 7px;font-size:12px;background:light-dark(#f7fafb,#12202a)}
-    #planet-conqueror button{min-height:44px;border:0;border-radius:10px;padding:10px 14px;background:#2f78ff;color:#fff;font-weight:700;cursor:pointer}#planet-conqueror button:focus-visible{outline:3px solid #fff;outline-offset:2px}
-    #planet-conqueror .boss{font-weight:800;color:#ffcc66}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    @media(max-width:700px){#planet-conqueror .bottom{grid-template-columns:1fr}.chip{min-width:72px}#planet-conqueror canvas{aspect-ratio:4/3}}
+    #planet-conqueror .message-wrap{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;pointer-events:none;padding-top:24px;z-index:4}
+    #planet-conqueror .message{background:rgba(0,0,0,.68);backdrop-filter:blur(6px);padding:12px 18px;border:1px solid rgba(255,255,255,.12);border-radius:12px;font-weight:900;letter-spacing:.6px;opacity:0;transform:translateY(-8px);transition:.2s}
+    #planet-conqueror .screen{position:absolute;inset:0;z-index:10;display:none;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%,rgba(40,101,165,.24),rgba(1,8,14,.94) 58%,#02070b);padding:28px;text-align:center}
+    #planet-conqueror .screen.show{display:flex}
+    #planet-conqueror .screen-card{width:min(760px,96%);padding:34px;border:1px solid rgba(148,207,255,.22);background:rgba(6,16,25,.88);border-radius:24px;box-shadow:0 24px 90px rgba(0,0,0,.5);backdrop-filter:blur(10px)}
+    #planet-conqueror .logo{font-size:clamp(38px,7vw,82px);line-height:.9;font-weight:1000;letter-spacing:3px;text-shadow:0 0 30px rgba(81,174,255,.45);margin:0 0 12px}
+    #planet-conqueror .eyebrow{font-size:12px;letter-spacing:4px;color:#7cd7ff;font-weight:900;margin-bottom:14px}
+    #planet-conqueror .screen h2{font-size:clamp(34px,6vw,64px);margin:0 0 10px;letter-spacing:2px}
+    #planet-conqueror .screen p{color:#b9cedd;margin:8px auto 20px;max-width:580px;line-height:1.5}
+    #planet-conqueror .actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+    #planet-conqueror button{min-height:44px;border:0;border-radius:10px;padding:10px 16px;background:#2f78ff;color:#fff;font-weight:850;cursor:pointer;transition:transform .15s,filter .15s}#planet-conqueror button:hover{transform:translateY(-1px);filter:brightness(1.1)}#planet-conqueror button.secondary{background:#162a3a;border:1px solid #36546a}#planet-conqueror button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+    #planet-conqueror .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+    #planet-conqueror .power-card{min-height:210px;text-align:left;padding:18px;border-radius:18px;background:linear-gradient(160deg,#10273a,#09131d);border:1px solid #2d526d;color:#fff;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between}
+    #planet-conqueror .power-card strong{font-size:20px}.power-card .tag{font-size:11px;letter-spacing:1.5px;color:#75d8ff}.power-card .desc{font-size:13px;line-height:1.5;color:#bed0dc}
+    #planet-conqueror .transition-planet{width:100px;height:100px;border-radius:50%;margin:0 auto 22px;background:radial-gradient(circle at 32% 28%,#8ae3ff,#2456a6 48%,#0b1737 72%);box-shadow:0 0 55px rgba(83,174,255,.45);animation:planetPulse 1.4s ease-in-out infinite alternate}@keyframes planetPulse{to{transform:scale(1.08);box-shadow:0 0 85px rgba(83,174,255,.65)}}
+    #planet-conqueror .bottom{display:grid;grid-template-columns:1.25fr .75fr;gap:12px;margin-top:12px}.panel{background:#0c1721;border:1px solid #20384a;border-radius:14px;padding:12px}.bar{height:10px;background:#162633;border-radius:999px;overflow:hidden}.fill{height:100%;width:100%;transition:width .12s}.hp{background:#42c96b}.energy{background:#38c8ff}.xp{background:#5da8ff}.conq{background:#f0a83a}.cardsbar{background:#b778ff}
+    #planet-conqueror .row{display:flex;justify-content:space-between;gap:10px;font-size:12px;margin:4px 0 6px}.controls{display:flex;gap:8px;flex-wrap:wrap}.kbd{border:1px solid #2b4455;border-bottom-width:3px;border-radius:7px;padding:4px 7px;font-size:12px;background:#12202a}
+    #planet-conqueror .boss{font-weight:900;color:#ffcc66}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.buttonrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.debuff{color:#ffbc7d;font-weight:800}
+    @media(max-width:760px){#planet-conqueror .bottom{grid-template-columns:1fr}#planet-conqueror .cards{grid-template-columns:1fr}.chip{min-width:72px}#planet-conqueror canvas{aspect-ratio:4/3}.screen-card{padding:24px!important}}
   </style>
+
   <div class="shell">
     <div class="top">
-      <div><div class="title">PLANET CONQUEROR — TERRA</div><div class="muted">Conquer the planet. Defeat enough hostiles to summon the Overlord.</div></div>
+      <div><div class="title">PLANET CONQUEROR</div><div class="muted" id="subtitle">Conquer endless worlds. Adapt. Evolve. Survive.</div></div>
       <div class="hud">
-        <div class="chip">Level <b id="lvl">1</b></div>
+        <div class="chip">Planet <b id="lvl">1</b></div>
+        <div class="chip">Player Lv <b id="playerLvl">1</b></div>
         <div class="chip">Kills <b id="kills">0</b></div>
         <div class="chip">Damage <b id="dmg">16</b></div>
-        <div class="chip">Ammo <b id="ammo">20 / 20</b></div>
+        <div class="chip">Energy <b id="energyChip">100 / 100</b></div>
       </div>
     </div>
 
     <div class="stage">
       <canvas id="game" width="1280" height="720" aria-label="Top-down Planet Conqueror game area"></canvas>
-      <div class="overlay"><div class="message" id="msg">PLANET CONQUERED</div></div>
+      <div class="message-wrap"><div class="message" id="msg">PLANET CONQUERED</div></div>
+
+      <div class="screen show" id="titleScreen">
+        <div class="screen-card">
+          <div class="eyebrow">ENDLESS CONQUEST</div>
+          <h1 class="logo">PLANET<br>CONQUEROR</h1>
+          <p>Fight through endlessly generated planets, survive hostile planetary debuffs, destroy each Overlord, and evolve your build every three player level-ups.</p>
+          <div class="actions"><button id="playBtn" type="button">PLAY</button></div>
+          <div class="muted" style="margin-top:18px">WASD Move · Mouse Aim · Hold Click Fire · Shift Dash · Esc Pause</div>
+        </div>
+      </div>
+
+      <div class="screen" id="transitionScreen">
+        <div class="screen-card">
+          <div class="transition-planet"></div>
+          <div class="eyebrow">WARPING TO NEXT WORLD</div>
+          <h2 id="transitionTitle">PLANET CONQUERED</h2>
+          <p id="transitionText">Preparing next planet...</p>
+        </div>
+      </div>
+
+      <div class="screen" id="cardScreen">
+        <div class="screen-card">
+          <div class="eyebrow">EVOLUTION CHOICE</div>
+          <h2 id="cardTitle">CHOOSE 2 POWERS</h2>
+          <p id="cardPrompt">Choose two different permanent upgrades for this run.</p>
+          <div class="cards" id="cards"></div>
+        </div>
+      </div>
+
+      <div class="screen" id="pauseScreen">
+        <div class="screen-card">
+          <div class="eyebrow">SYSTEM PAUSED</div><h2>PAUSED</h2><p>The conquest is frozen until you resume.</p>
+          <div class="actions"><button id="resumeBtn" type="button">RESUME GAME</button><button id="pauseTitleBtn" class="secondary" type="button">RETURN TO TITLE</button></div>
+        </div>
+      </div>
+
+      <div class="screen" id="deathScreen">
+        <div class="screen-card">
+          <div class="eyebrow">RUN TERMINATED</div><h2>YOU DIED</h2><p id="deathStats">Planet 1 · 0 kills</p>
+          <div class="actions"><button id="retryBtn" type="button">RETRY</button><button id="deathTitleBtn" class="secondary" type="button">RETURN TO TITLE</button></div>
+        </div>
+      </div>
     </div>
 
     <div class="bottom">
       <div class="panel">
         <div class="row"><span>Health</span><span id="hpText">100 / 100</span></div><div class="bar"><div class="fill hp" id="hpBar"></div></div>
+        <div class="row"><span>Energy</span><span id="energyText">100 / 100</span></div><div class="bar"><div class="fill energy" id="energyBar"></div></div>
         <div class="row"><span>XP</span><span id="xpText">0 / 100</span></div><div class="bar"><div class="fill xp" id="xpBar"></div></div>
-        <div class="row"><span>Terra Conquest</span><span id="conqText">0%</span></div><div class="bar"><div class="fill conq" id="conqBar"></div></div>
+        <div class="row"><span id="conqLabel">Planet Conquest</span><span id="conqText">0%</span></div><div class="bar"><div class="fill conq" id="conqBar"></div></div>
+        <div class="row"><span>Next Power Choice</span><span id="cardText">3 level-ups away</span></div><div class="bar"><div class="fill cardsbar" id="cardBar"></div></div>
       </div>
       <div class="panel">
         <div class="grid2">
-          <div><div class="muted" style="margin-bottom:8px">Controls</div><div class="controls"><span class="kbd">WASD</span><span class="kbd">Mouse Aim</span><span class="kbd">Click Shoot</span><span class="kbd">Shift Dash</span></div></div>
-          <div><div class="muted" style="margin-bottom:8px">Boss Status</div><div id="bossStatus">Overlord dormant — 15 kills required</div></div>
+          <div><div class="muted" style="margin-bottom:8px">Controls</div><div class="controls"><span class="kbd">WASD</span><span class="kbd">Mouse</span><span class="kbd">Click Fire</span><span class="kbd">Shift Dash</span><span class="kbd">Esc Pause</span></div></div>
+          <div><div class="muted" style="margin-bottom:8px">Planet Status</div><div id="bossStatus">Awaiting launch</div><div id="debuffStatus" class="debuff" style="margin-top:6px">No debuff</div></div>
         </div>
-        <div style="margin-top:12px"><button type="button" id="restart">Restart Run</button></div>
+        <div class="buttonrow"><button type="button" id="pauseBtn">Pause Game</button><button type="button" id="restart" class="secondary">Restart Run</button></div>
       </div>
     </div>
   </div>
+
   <script>
-    (()=>{
-      const root=document.getElementById('planet-conqueror'); if(root.dataset.init) return; root.dataset.init='1';
-      const c=root.querySelector('#game'),x=c.getContext('2d');
-      const ui={lvl:root.querySelector('#lvl'),kills:root.querySelector('#kills'),dmg:root.querySelector('#dmg'),ammo:root.querySelector('#ammo'),hpText:root.querySelector('#hpText'),hpBar:root.querySelector('#hpBar'),xpText:root.querySelector('#xpText'),xpBar:root.querySelector('#xpBar'),conqText:root.querySelector('#conqText'),conqBar:root.querySelector('#conqBar'),bossStatus:root.querySelector('#bossStatus'),msg:root.querySelector('#msg')};
-      const W=3200,H=2200; let keys={},mouse={x:c.width/2,y:c.height/2,down:false},shots=[],enemies=[],particles=[],drops=[],rocks=[],trees=[],last=performance.now(),spawnTimer=0,shake=0,won=false,bossSpawned=false,planetLevel=1,transitioning=false,drainTimer=0,totalEnemiesSpawned=0;
-      const p={x:W/2,y:H/2,r:18,speed:270,hp:100,maxHp:100,level:1,xp:0,xpNeed:100,damage:16,kills:0,dashCd:0,ifr:0,ammo:20,maxAmmo:20,reloading:false,reloadTimer:0};
-      const rand=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-      function reset(){planetLevel=1;transitioning=false;drainTimer=0;totalEnemiesSpawned=0;p.x=W/2;p.y=H/2;p.hp=p.maxHp=100;p.level=1;p.xp=0;p.xpNeed=100;p.damage=16;p.kills=0;p.dashCd=0;p.ifr=0;p.ammo=p.maxAmmo;p.reloading=false;p.reloadTimer=0;shots=[];enemies=[];particles=[];drops=[];won=false;bossSpawned=false;spawnTimer=0;p.speed=270;makeTerrain();for(let i=0;i<Math.min(7,15+(planetLevel-1)*5);i++){spawnEnemy();totalEnemiesSpawned++}updateUI();showMsg('LANDED ON TERRA',900)}
-      function makeTerrain(){rocks=[];trees=[];for(let i=0;i<85;i++)rocks.push({x:rand(80,W-80),y:rand(80,H-80),r:rand(14,30)});for(let i=0;i<110;i++)trees.push({x:rand(60,W-60),y:rand(60,H-60),r:rand(18,34)})}
-      function spawnEnemy(boss=false){let a=rand(0,Math.PI*2),d=boss?rand(180,260):rand(500,900),ex=clamp(p.x+Math.cos(a)*d,50,W-50),ey=clamp(p.y+Math.sin(a)*d,50,H-50);const scale=1+(planetLevel-1)*.35;const bossHp=(planetLevel===1?650:planetLevel===2?850:1100)*3;const enemy={x:ex,y:ey,r:boss?58:20,hp:boss?bossHp:(45+p.level*6)*scale,maxHp:boss?bossHp:(45+p.level*6)*scale,speed:boss?(90+planetLevel*15)*3:(85+rand(0,35)+planetLevel*18),damage:boss?(22+planetLevel*8)*3:(8+planetLevel*4),boss,hit:0,shoot:boss?1.2:(planetLevel>=2?rand(.7,1.4):0),charge:boss?2.5:0,burst:boss?2.2:0};enemies.push(enemy)}
-      function spawnEnemy(boss=false){let a=rand(0,Math.PI*2),d=boss?rand(180,260):rand(500,900),ex=clamp(p.x+Math.cos(a)*d,50,W-50),ey=clamp(p.y+Math.sin(a)*d,50,H-50);const scale=1+(planetLevel-1)*.35;const bossHp=(planetLevel===1?650:planetLevel===2?850:1100)*3;const enemy={x:ex,y:ey,r:boss?58:20,hp:boss?bossHp:(45+p.level*6)*scale,maxHp:boss?bossHp:(45+p.level*6)*scale,speed:boss?(72+planetLevel*8):(85+rand(0,35)+planetLevel*18),damage:boss?(22+planetLevel*8)*3:(8+planetLevel*4),boss,hit:0,shoot:boss?1.2:(planetLevel>=2?rand(.7,1.4):0),charge:boss?2.5:0,burst:boss?2.2:0};enemies.push(enemy)}
-      function camera(){return{x:clamp(p.x-c.width/2,0,W-c.width),y:clamp(p.y-c.height/2,0,H-c.height)}}
-      function startReload(){if(p.reloading||p.ammo===p.maxAmmo)return;p.reloading=true;p.reloadTimer=1.35;showMsg('RELOADING...',700);updateUI()}
-      function shoot(){if(won||p.hp<=0||p.reloading)return;if(p.ammo<=0){startReload();return}p.ammo--;const cam=camera(),wx=mouse.x+cam.x,wy=mouse.y+cam.y,a=Math.atan2(wy-p.y,wx-p.x);shots.push({x:p.x,y:p.y,vx:Math.cos(a)*720,vy:Math.sin(a)*720,r:5,life:1.1,damage:p.damage});for(let i=0;i<5;i++)particles.push({x:p.x+Math.cos(a)*20,y:p.y+Math.sin(a)*20,vx:rand(-40,40)+Math.cos(a)*120,vy:rand(-40,40)+Math.sin(a)*120,life:.18,r:rand(2,5),kind:'muzzle'});if(p.ammo===0)startReload();updateUI()}
-      function burst(ex,ey){for(let i=0;i<14;i++)particles.push({x:ex,y:ey,vx:rand(-150,150),vy:rand(-150,150),life:rand(.2,.6),r:rand(2,5),kind:'hit'})}
-      function killEnemy(e){p.kills++;p.xp+=e.boss?180:24;drops.push({x:e.x,y:e.y,r:6,life:8});burst(e.x,e.y);shake=e.boss?16:5;if(e.boss){won=true;showMsg((planetLevel===1?'TERRA':planetLevel===2?'VIOLET':'EMBER')+' CONQUERED',1400);setTimeout(()=>{shake=0;advancePlanet()},700)}while(p.xp>=p.xpNeed){p.xp-=p.xpNeed;p.level++;p.xpNeed=Math.floor(p.xpNeed*1.35);p.maxHp+=40;p.hp=Math.min(p.maxHp,p.hp+40);p.damage+=4;showMsg('LEVEL UP +40 HP',700)}updateUI()}
-      function advancePlanet(){if(transitioning)return;transitioning=true;if(planetLevel>=3){showMsg('GALAXY CONQUERED',3000);won=true;transitioning=false;return}planetLevel++;totalEnemiesSpawned=0;p.kills=0;bossSpawned=false;won=false;shots=[];enemies=[];particles=[];drops=[];p.x=W/2;p.y=H/2;p.hp=p.maxHp;p.ammo=p.maxAmmo;p.reloading=false;p.reloadTimer=0;p.speed=planetLevel===2?175:230;spawnTimer=0;makeTerrain();for(let i=0;i<Math.min(7,15+(planetLevel-1)*5);i++){spawnEnemy();totalEnemiesSpawned++}transitioning=false;updateUI();showMsg(planetLevel===2?'LANDED ON VIOLET — MOVEMENT SLOWED':'LANDED ON EMBER — HEALTH IS DRAINING',1600)}
-      function showMsg(t,ms){ui.msg.textContent=t;ui.msg.style.opacity='1';clearTimeout(showMsg.t);showMsg.t=setTimeout(()=>ui.msg.style.opacity='0',ms)}
-      function update(dt){if(won||transitioning)return;let dx=(keys.d?1:0)-(keys.a?1:0),dy=(keys.s?1:0)-(keys.w?1:0),len=Math.hypot(dx,dy)||1,spd=p.speed;if(keys.shift&&p.dashCd<=0&&(dx||dy)){spd*=4;p.dashCd=1.1;p.ifr=.22;shake=7}p.x=clamp(p.x+dx/len*spd*dt,p.r,W-p.r);p.y=clamp(p.y+dy/len*spd*dt,p.r,H-p.r);p.dashCd=Math.max(0,p.dashCd-dt);p.ifr=Math.max(0,p.ifr-dt);if(p.reloading){p.reloadTimer-=dt;if(p.reloadTimer<=0){p.reloading=false;p.ammo=p.maxAmmo;showMsg('RELOADED',500);updateUI()}}if(planetLevel===3){drainTimer+=dt;if(drainTimer>=1){drainTimer=0;p.hp=Math.max(1,p.hp-2);updateUI()}}spawnTimer-=dt;const enemyCap=15+(planetLevel-1)*5;if(spawnTimer<=0&&!bossSpawned&&totalEnemiesSpawned<enemyCap){if(enemies.filter(e=>!e.boss).length<7){spawnEnemy();totalEnemiesSpawned++}spawnTimer=.9}
-        for(const s of shots){s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt}shots=shots.filter(s=>s.life>0&&s.x>0&&s.x<W&&s.y>0&&s.y<H);
-        for(const e of enemies){let a=Math.atan2(p.y-e.y,p.x-e.x),dist=Math.hypot(p.x-e.x,p.y-e.y);e.x+=Math.cos(a)*e.speed*dt;e.y+=Math.sin(a)*e.speed*dt;e.hit=Math.max(0,e.hit-dt);if(e.boss){e.shoot-=dt;e.charge-=dt;e.burst-=dt;if(planetLevel===1&&e.shoot<=0){e.shoot=.9;for(let k=0;k<12;k++){let aa=k/12*Math.PI*2;shots.push({x:e.x,y:e.y,vx:Math.cos(aa)*270,vy:Math.sin(aa)*270,r:7,life:2.2,damage:10,enemy:true})}}if(planetLevel===2&&e.charge<=0){e.charge=2.8;const ca=Math.atan2(p.y-e.y,p.x-e.x),td=rand(170,250);e.x=clamp(p.x+Math.cos(ca+Math.PI)*td,60,W-60);e.y=clamp(p.y+Math.sin(ca+Math.PI)*td,60,H-60);shake=6;for(let k=-1;k<=1;k++){let aa=Math.atan2(p.y-e.y,p.x-e.x)+k*.16;shots.push({x:e.x,y:e.y,vx:Math.cos(aa)*340,vy:Math.sin(aa)*340,r:8,life:2,damage:11,enemy:true})}}if(planetLevel===3&&e.burst<=0){e.burst=2.1;for(let k=-2;k<=2;k++){let aa=a+k*.18;shots.push({x:e.x,y:e.y,vx:Math.cos(aa)*360,vy:Math.sin(aa)*360,r:8,life:2,damage:12,enemy:true})}}}else if(planetLevel>=2){e.shoot-=dt;if(e.shoot<=0){e.shoot=Math.max(.65,1.5-planetLevel*.18)+rand(0,.45);const ea=Math.atan2(p.y-e.y,p.x-e.x);shots.push({x:e.x,y:e.y,vx:Math.cos(ea)*(250+planetLevel*35),vy:Math.sin(ea)*(250+planetLevel*35),r:6,life:2.2,damage:5+planetLevel*3,enemy:true})}}if(dist<e.r+p.r&&p.ifr<=0){p.hp-=e.damage;p.ifr=.65;shake=8;updateUI();if(p.hp<=0){p.hp=0;showMsg('YOU WERE DEFEATED — RETURNING TO TERRA',1300);setTimeout(()=>{reset()},1300)}}}
-        for(const s of shots){if(s.enemy){if(Math.hypot(s.x-p.x,s.y-p.y)<s.r+p.r&&p.ifr<=0){p.hp-=s.damage;p.ifr=.35;s.life=0;shake=5;updateUI()}continue}for(const e of enemies){if(s.life>0&&Math.hypot(s.x-e.x,s.y-e.y)<s.r+e.r){e.hp-=s.damage;e.hit=.08;s.life=0;burst(s.x,s.y);if(e.hp<=0)e.dead=true;break}}}
-        enemies=enemies.filter(e=>{if(e.dead){killEnemy(e);return false}return true});if(!bossSpawned&&totalEnemiesSpawned>=enemyCap&&enemies.filter(e=>!e.boss).length===0){bossSpawned=true;spawnEnemy(true);showMsg((planetLevel===1?'TERRA':planetLevel===2?'VIOLET':'EMBER')+' OVERLORD HAS AWAKENED',1500)}for(const q of particles){q.x+=q.vx*dt;q.y+=q.vy*dt;q.life-=dt;q.vx*=.94;q.vy*=.94}particles=particles.filter(q=>q.life>0);for(const d of drops){d.life-=dt;if(Math.hypot(d.x-p.x,d.y-p.y)<35){p.hp=Math.min(p.maxHp,p.hp+4);d.life=0;updateUI()}}drops=drops.filter(d=>d.life>0);shake=Math.max(0,shake-35*dt)
+  (()=>{
+    const root=document.getElementById('planet-conqueror'); if(root.dataset.init) return; root.dataset.init='1';
+    const c=root.querySelector('#game'),ctx=c.getContext('2d');
+    const $=s=>root.querySelector(s);
+    const ui={lvl:$('#lvl'),playerLvl:$('#playerLvl'),kills:$('#kills'),dmg:$('#dmg'),energyChip:$('#energyChip'),hpText:$('#hpText'),hpBar:$('#hpBar'),energyText:$('#energyText'),energyBar:$('#energyBar'),xpText:$('#xpText'),xpBar:$('#xpBar'),conqText:$('#conqText'),conqBar:$('#conqBar'),conqLabel:$('#conqLabel'),cardText:$('#cardText'),cardBar:$('#cardBar'),bossStatus:$('#bossStatus'),debuffStatus:$('#debuffStatus'),msg:$('#msg'),subtitle:$('#subtitle'),titleScreen:$('#titleScreen'),transitionScreen:$('#transitionScreen'),transitionTitle:$('#transitionTitle'),transitionText:$('#transitionText'),cardScreen:$('#cardScreen'),cards:$('#cards'),cardTitle:$('#cardTitle'),cardPrompt:$('#cardPrompt'),pauseScreen:$('#pauseScreen'),deathScreen:$('#deathScreen'),deathStats:$('#deathStats')};
+    const W=3200,H=2200,rand=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+    const planetRoots=['Terra','Violet','Ember','Cryos','Nyx','Helion','Orion','Zenith','Draco','Astra','Riven','Kaelis','Nova','Titan','Erebus','Solara'];
+    const planetSuffix=['Prime','VII','Reach','Hollow','Nexus','Delta','Crown','Rift','Echo','-9'];
+    const debuffs=[
+      {id:'gravity',name:'HEAVY GRAVITY',desc:'Movement -12% and dash distance -20%.'},
+      {id:'overcharge',name:'OVERCHARGED HOSTILES',desc:'Enemy projectiles travel 22% faster.'},
+      {id:'armor',name:'ARMORED SPECIES',desc:'Enemies gain 28% more health.'},
+      {id:'drain',name:'ENERGY LEAK',desc:'Energy regeneration is 24% slower.'},
+      {id:'frenzy',name:'BERSERKER WORLD',desc:'Enemies move 18% faster, but take 12% more damage.'},
+      {id:'storm',name:'ION STORM',desc:'Periodic energy interference drains 7 energy.'},
+      {id:'scarcity',name:'SCARCE BIOSPHERE',desc:'Health drops heal 50% less.'},
+      {id:'volatile',name:'VOLATILE CORE',desc:'Enemy contact damage +20%.'}
+    ];
+    const powerPool=[
+      {name:'HIGH CALIBER',tag:'DAMAGE',desc:'+25% projectile damage.',apply:()=>p.damage*=1.25},
+      {name:'OVERCHARGE CELL',tag:'ENERGY',desc:'+30 max energy and fully recharge.',apply:()=>{p.maxEnergy+=30;p.energy=p.maxEnergy}},
+      {name:'QUICK CHARGE',tag:'ENERGY',desc:'+30% passive energy regeneration.',apply:()=>p.energyRegen*=1.3},
+      {name:'CHEAP SHOTS',tag:'EFFICIENCY',desc:'Shots cost 25% less energy.',apply:()=>p.shotCost=Math.max(2,p.shotCost*.75)},
+      {name:'PHASE DASH',tag:'MOBILITY',desc:'Dash costs 25% less and cooldown -20%.',apply:()=>{p.dashCost=Math.max(8,p.dashCost*.75);p.dashCdMax*=.8}},
+      {name:'THRUSTERS',tag:'MOBILITY',desc:'+15% movement speed.',apply:()=>p.baseSpeed*=1.15},
+      {name:'NANO ARMOR',tag:'SURVIVAL',desc:'+35 max health and heal 35.',apply:()=>{p.maxHp+=35;p.hp=Math.min(p.maxHp,p.hp+35)}},
+      {name:'VAMPIRIC CORE',tag:'SURVIVAL',desc:'Kills restore 3 health.',apply:()=>p.killHeal+=3},
+      {name:'RAPID FIRE',tag:'OFFENSE',desc:'Fire rate +20%.',apply:()=>p.fireDelay=Math.max(.07,p.fireDelay*.8)}
+    ];
+
+    let keys={},mouse={x:c.width/2,y:c.height/2,down:false},shots=[],enemies=[],particles=[],drops=[],rocks=[],trees=[],atmosphere=[];
+    let last=performance.now(),spawnTimer=0,shake=0,bossSpawned=false,planetLevel=1,totalEnemiesSpawned=0,totalRunKills=0,completedPlanets=0;
+    let gameState='title',stateTimer=0,messageTimer=0,energyIdle=0,stormTimer=0,currentPlanet='',currentDebuff=null,planetSeed=0,fireTimer=0,pendingPowerChoices=0,cardContinuation='resume',cardPicksNeeded=2,cardPicksMade=0,bossDraftDone=false,atmosphereType='leaves';
+    const p={x:W/2,y:H/2,r:18,baseSpeed:270,hp:100,maxHp:100,damage:16,kills:0,level:1,xp:0,xpNeed:100,levelUpsSinceCard:0,dashCd:0,dashCdMax:1.0,dashActive:false,dashElapsed:0,dashDuration:.24,dashDistance:170,dashDirX:0,dashDirY:0,ifr:0,energy:100,maxEnergy:100,shotCost:7,dashCost:28,energyRegen:16,emptyRecharge:70,energyLocked:false,emptyDelay:0,killHeal:0,fireDelay:.16};
+
+    function setScreen(id){for(const s of [ui.titleScreen,ui.transitionScreen,ui.cardScreen,ui.pauseScreen,ui.deathScreen])s.classList.remove('show');if(id)id.classList.add('show')}
+    function planetName(level){if(level===1)return 'TERRA'; const rng=(level*9301+49297)%233280;const a=planetRoots[level%planetRoots.length],b=planetSuffix[Math.floor(rng/233280*planetSuffix.length)];return (a+' '+b).toUpperCase()}
+    function pickDebuff(){if(planetLevel===1)return null;return debuffs[Math.floor(Math.random()*debuffs.length)]}
+    function hasDebuff(id){return currentDebuff?.id===id}
+    function enemyCap(){return Math.min(34,12+Math.floor((planetLevel-1)*2.1))}
+    function activeEnemyCap(){return Math.min(11,6+Math.floor(planetLevel/3))}
+    function makeTerrain(){rocks=[];trees=[];planetSeed=Math.random()*9999;atmosphereType=Math.random()<.5?'rain':'leaves';atmosphere=[];for(let i=0;i<72;i++)rocks.push({x:rand(80,W-80),y:rand(80,H-80),r:rand(14,30)});for(let i=0;i<92;i++)trees.push({x:rand(60,W-60),y:rand(60,H-60),r:rand(18,34)});const count=atmosphereType==='rain'?115:34;for(let i=0;i<count;i++)atmosphere.push(makeAtmosphereParticle(true))}
+    function makeAtmosphereParticle(initial=false){if(atmosphereType==='rain')return{x:rand(0,c.width),y:initial?rand(0,c.height):rand(-120,-10),vx:rand(-90,-45),vy:rand(650,980),len:rand(12,26),alpha:rand(.16,.42)};return{x:initial?rand(0,c.width):rand(-80,-10),y:rand(0,c.height),vx:rand(45,110),vy:rand(8,34),spin:rand(-3,3),rot:rand(0,Math.PI*2),size:rand(4,9),alpha:rand(.25,.6)}}
+    function updateAtmosphere(dt){for(let i=0;i<atmosphere.length;i++){let a=atmosphere[i];a.x+=a.vx*dt;a.y+=a.vy*dt;if(atmosphereType==='leaves'){a.rot+=a.spin*dt;a.y+=Math.sin(a.rot*2)*10*dt}if(a.y>c.height+40||a.x>c.width+80||a.x<-100)atmosphere[i]=makeAtmosphereParticle(false)}}
+    function drawAtmosphere(){ctx.save();ctx.lineCap='round';for(const a of atmosphere){ctx.globalAlpha=a.alpha;if(atmosphereType==='rain'){ctx.strokeStyle='#b9e7ff';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(a.x-a.vx*.018,a.y-a.len);ctx.stroke()}else{ctx.translate(a.x,a.y);ctx.rotate(a.rot);ctx.fillStyle='#a8d86f';ctx.beginPath();ctx.ellipse(0,0,a.size,a.size*.45,0,0,Math.PI*2);ctx.fill();ctx.rotate(-a.rot);ctx.translate(-a.x,-a.y)}}ctx.globalAlpha=1;ctx.restore()}
+    function beginRun(){planetLevel=1;completedPlanets=0;totalRunKills=0;bossDraftDone=false;p.maxHp=100;p.hp=100;p.damage=16;p.baseSpeed=270;p.level=1;p.xp=0;p.xpNeed=100;p.levelUpsSinceCard=0;pendingPowerChoices=0;p.maxEnergy=100;p.energy=100;p.shotCost=7;p.dashCost=28;p.energyRegen=16;p.emptyRecharge=70;p.killHeal=0;p.fireDelay=.16;p.dashCdMax=1;p.dashActive=false;p.dashElapsed=0;p.energyLocked=false;loadPlanet();gameState='playing';setScreen(null);root.focus()}
+    function loadPlanet(){currentPlanet=planetName(planetLevel);currentDebuff=pickDebuff();p.x=W/2;p.y=H/2;p.hp=Math.min(p.maxHp,p.hp+Math.max(20,p.maxHp*.28));p.energy=p.maxEnergy;p.energyLocked=false;p.emptyDelay=0;p.kills=0;p.dashCd=0;p.dashActive=false;p.dashElapsed=0;p.ifr=0;shots=[];enemies=[];particles=[];drops=[];bossSpawned=false;bossDraftDone=false;totalEnemiesSpawned=0;spawnTimer=0;stormTimer=3.5;makeTerrain();for(let i=0;i<Math.min(activeEnemyCap(),6);i++){spawnEnemy();totalEnemiesSpawned++}showMsg('LANDED ON '+currentPlanet+(currentDebuff?' — '+currentDebuff.name:''),1700);updateUI()}
+    function spawnEnemy(boss=false){const a=rand(0,Math.PI*2),d=boss?rand(420,600):rand(520,920),ex=clamp(p.x+Math.cos(a)*d,60,W-60),ey=clamp(p.y+Math.sin(a)*d,60,H-60);const scale=1+(planetLevel-1)*.16;const armored=hasDebuff('armor')?1.28:1;const hp= boss ? (900+planetLevel*180)*scale : (44+planetLevel*7)*scale*armored;const baseBossSpeed=112+Math.min(planetLevel*4,55);let speed=boss?baseBossSpeed:(88+rand(0,32)+Math.min(planetLevel*7,95));if(hasDebuff('frenzy'))speed*=1.18;const dmg=(boss?18+planetLevel*2.5:7+planetLevel*1.25)*(hasDebuff('volatile')?1.2:1);enemies.push({x:ex,y:ey,r:boss?58:20,hp,maxHp:hp,speed,damage:dmg,boss,hit:0,shoot:boss?.45:rand(.8,1.5),burst:1.5,strafe:Math.random()<.5?-1:1,dead:false})}
+    function camera(){return{x:clamp(p.x-c.width/2,0,W-c.width),y:clamp(p.y-c.height/2,0,H-c.height)}}
+    function consumeEnergy(amount){if(p.energyLocked||p.energy<amount)return false;p.energy=Math.max(0,p.energy-amount);energyIdle=0;if(p.energy<=0){p.energy=0;p.energyLocked=true;p.emptyDelay=.30;showMsg('ENERGY EMPTY — SYSTEM LOCKED',900)}updateUI();return true}
+    function shoot(){if(gameState!=='playing'||p.hp<=0||p.energyLocked||fireTimer>0)return;if(!consumeEnergy(p.shotCost))return;const cam=camera(),wx=mouse.x+cam.x,wy=mouse.y+cam.y,a=Math.atan2(wy-p.y,wx-p.x);shots.push({x:p.x,y:p.y,vx:Math.cos(a)*760,vy:Math.sin(a)*760,r:5,life:1.2,damage:p.damage,enemy:false});fireTimer=p.fireDelay;for(let i=0;i<4;i++)particles.push({x:p.x+Math.cos(a)*20,y:p.y+Math.sin(a)*20,vx:rand(-40,40)+Math.cos(a)*120,vy:rand(-40,40)+Math.sin(a)*120,life:.18,r:rand(2,5),kind:'muzzle'})}
+    function dash(dx,dy){if(p.dashCd>0||p.dashActive||p.energyLocked||!consumeEnergy(p.dashCost))return false;const length=hasDebuff('gravity')?.8:1;p.dashActive=true;p.dashElapsed=0;p.dashDistance=170*length;p.dashDirX=dx;p.dashDirY=dy;p.dashCd=p.dashCdMax;p.ifr=p.dashDuration+.05;shake=5;return true}
+    function updateDash(dt){if(!p.dashActive)return false;const prev=clamp(p.dashElapsed/p.dashDuration,0,1);p.dashElapsed=Math.min(p.dashDuration,p.dashElapsed+dt);const now=clamp(p.dashElapsed/p.dashDuration,0,1);const ease=t=>1-Math.pow(1-t,3);const step=p.dashDistance*(ease(now)-ease(prev));p.x=clamp(p.x+p.dashDirX*step,p.r,W-p.r);p.y=clamp(p.y+p.dashDirY*step,p.r,H-p.r);if(now>=1)p.dashActive=false;return true}
+    function burst(ex,ey){for(let i=0;i<10;i++)particles.push({x:ex,y:ey,vx:rand(-150,150),vy:rand(-150,150),life:rand(.2,.55),r:rand(2,5),kind:'hit'})}
+    function damagePlayer(amount){if(gameState!=='playing'||p.ifr>0)return;p.hp=Math.max(0,p.hp-amount);p.ifr=.36;shake=7;updateUI();if(p.hp<=0)die()}
+    function gainXP(amount){p.xp+=amount;let leveled=false;while(p.xp>=p.xpNeed){p.xp-=p.xpNeed;p.level++;p.xpNeed=Math.floor(p.xpNeed*1.28);p.levelUpsSinceCard++;p.maxHp+=12;p.hp=Math.min(p.maxHp,p.hp+12);p.damage+=1.5;leveled=true;if(p.levelUpsSinceCard>=3){p.levelUpsSinceCard-=3;pendingPowerChoices++}}if(leveled)showMsg('LEVEL UP — LV '+p.level,850)}
+    function killEnemy(e){p.kills++;totalRunKills++;gainXP(e.boss?180:24);if(p.killHeal)p.hp=Math.min(p.maxHp,p.hp+p.killHeal);drops.push({x:e.x,y:e.y,r:6,life:7});burst(e.x,e.y);shake=e.boss?15:4;if(e.boss)conquerPlanet();updateUI()}
+    function conquerPlanet(){if(gameState!=='playing')return;completedPlanets++;gameState='transition';stateTimer=1.55;mouse.down=false;ui.transitionTitle.textContent=currentPlanet+' CONQUERED';ui.transitionText.textContent=(pendingPowerChoices>0?'Evolution signal detected. Choose a power before the next world.':'Scanning the galaxy for Planet '+(planetLevel+1)+'...');setScreen(ui.transitionScreen)}
+    function advanceAfterTransition(){if(pendingPowerChoices>0){openCards('nextPlanet');return}planetLevel++;loadPlanet();gameState='playing';setScreen(null)}
+    function openCards(continuation='resume',guaranteed=false){if(!guaranteed&&pendingPowerChoices<=0)return;cardContinuation=continuation;cardPicksNeeded=2;cardPicksMade=0;gameState='cards';mouse.down=false;const pool=[...powerPool].sort(()=>Math.random()-.5).slice(0,3);ui.cardTitle.textContent=guaranteed?'BOSS PREP — CHOOSE 2':'CHOOSE 2 POWERS';ui.cardPrompt.textContent=guaranteed?'The Overlord is approaching. Pick 2 of 3 upgrades before it enters the battlefield.':'Pick 2 different upgrades. This draft was earned from player level-ups.';ui.cards.innerHTML='';for(const power of pool){const b=document.createElement('button');b.className='power-card';b.type='button';b.innerHTML='<span class="tag">'+power.tag+'</span><strong>'+power.name+'</strong><span class="desc">'+power.desc+'</span>';b.addEventListener('click',()=>{if(b.disabled)return;power.apply();cardPicksMade++;b.disabled=true;b.style.opacity='.5';b.style.transform='scale(.97)';b.innerHTML+='<span class="tag">SELECTED '+cardPicksMade+' / '+cardPicksNeeded+'</span>';showMsg(power.name+' ACQUIRED',850);if(cardPicksMade<cardPicksNeeded){ui.cardPrompt.textContent='Choose 1 more card.';updateUI();return}if(!guaranteed)pendingPowerChoices--;if(!guaranteed&&pendingPowerChoices>0){openCards(cardContinuation,false);return}if(cardContinuation==='nextPlanet'){planetLevel++;loadPlanet();gameState='playing';setScreen(null)}else if(cardContinuation==='spawnBoss'){bossSpawned=true;spawnEnemy(true);gameState='playing';setScreen(null);showMsg(currentPlanet+' OVERLORD HAS AWAKENED',1500)}else{gameState='playing';setScreen(null)}updateUI();root.focus()});ui.cards.appendChild(b)}setScreen(ui.cardScreen);updateUI()}
+    function die(){gameState='dead';mouse.down=false;ui.deathStats.textContent='Reached Planet '+planetLevel+' · Player Lv '+p.level+' · '+totalRunKills+' total kills · '+completedPlanets+' planets conquered';setScreen(ui.deathScreen)}
+    function returnTitle(){gameState='title';mouse.down=false;keys={};shots=[];enemies=[];particles=[];drops=[];setScreen(ui.titleScreen);updateUI()}
+    function pause(){if(gameState!=='playing')return;gameState='paused';mouse.down=false;setScreen(ui.pauseScreen)}
+    function resume(){if(gameState!=='paused')return;gameState='playing';last=performance.now();setScreen(null);root.focus()}
+    function showMsg(t,ms=900){ui.msg.textContent=t;ui.msg.style.opacity='1';ui.msg.style.transform='translateY(0)';messageTimer=ms/1000}
+    function spawnEnemyShot(e,a,speed,life,damage,r=7){const mult=hasDebuff('overcharge')?1.22:1;shots.push({x:e.x,y:e.y,vx:Math.cos(a)*speed*mult,vy:Math.sin(a)*speed*mult,r,life,damage,enemy:true})}
+
+    function update(dt){
+      if(gameState==='transition'){stateTimer-=dt;if(stateTimer<=0)advanceAfterTransition();return}
+      if(gameState!=='playing')return;
+      fireTimer=Math.max(0,fireTimer-dt);p.dashCd=Math.max(0,p.dashCd-dt);p.ifr=Math.max(0,p.ifr-dt);energyIdle+=dt;
+      if(p.energyLocked){p.emptyDelay-=dt;if(p.emptyDelay<=0){p.energy=Math.min(p.maxEnergy,p.energy+p.emptyRecharge*dt);if(p.energy>=p.maxEnergy*.50){p.energyLocked=false;showMsg('ENERGY RESTORED',600)}}}
+      else if(energyIdle>.35&&p.energy<p.maxEnergy){const regen=p.energyRegen*(hasDebuff('drain')?.76:1);p.energy=Math.min(p.maxEnergy,p.energy+regen*dt)}
+      let dx=(keys.d?1:0)-(keys.a?1:0),dy=(keys.s?1:0)-(keys.w?1:0),len=Math.hypot(dx,dy);
+      if(len>0){dx/=len;dy/=len;if(keys.shift&&!keys._dashLatch){dash(dx,dy);keys._dashLatch=true}} if(!keys.shift)keys._dashLatch=false;const dashing=updateDash(dt);if(len>0&&!dashing){let speed=p.baseSpeed*(hasDebuff('gravity')?.88:1);p.x=clamp(p.x+dx*speed*dt,p.r,W-p.r);p.y=clamp(p.y+dy*speed*dt,p.r,H-p.r)}
+      if(hasDebuff('storm')){stormTimer-=dt;if(stormTimer<=0){stormTimer=rand(4,6);p.energy=Math.max(0,p.energy-7);if(p.energy===0&&!p.energyLocked){p.energyLocked=true;p.emptyDelay=.30}showMsg('ION STORM — ENERGY DISRUPTED',650)}}
+      spawnTimer-=dt;const cap=enemyCap();if(spawnTimer<=0&&!bossSpawned&&totalEnemiesSpawned<cap){if(enemies.filter(e=>!e.boss).length<activeEnemyCap()){spawnEnemy();totalEnemiesSpawned++}spawnTimer=Math.max(.42,.92-planetLevel*.012)}
+      for(const s of shots){s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt}shots=shots.filter(s=>s.life>0&&s.x>-120&&s.x<W+120&&s.y>-120&&s.y<H+120);
+      for(const e of enemies){
+        let a=Math.atan2(p.y-e.y,p.x-e.x),dist=Math.hypot(p.x-e.x,p.y-e.y);e.hit=Math.max(0,e.hit-dt);e.shoot-=dt;e.burst-=dt;
+        const desired=e.boss?225:20;if(dist>desired){e.x+=Math.cos(a)*e.speed*dt;e.y+=Math.sin(a)*e.speed*dt}else if(e.boss){e.x+=Math.cos(a+Math.PI/2*e.strafe)*e.speed*.48*dt;e.y+=Math.sin(a+Math.PI/2*e.strafe)*e.speed*.48*dt}
+        e.x=clamp(e.x,e.r,W-e.r);e.y=clamp(e.y,e.r,H-e.r);
+        if(e.boss){
+          if(e.shoot<=0){
+            if(planetLevel===1){e.shoot=.78;for(let k=0;k<16;k++){const aa=k/16*Math.PI*2;spawnEnemyShot(e,aa,380,4.8,11,7)}}
+            else {e.shoot=Math.max(.48,.86-planetLevel*.009);const aim=Math.atan2(p.y-e.y,p.x-e.x);const count=Math.min(7,3+Math.floor(planetLevel/4));for(let k=0;k<count;k++){const off=(k-(count-1)/2)*.11;spawnEnemyShot(e,aim+off,380+Math.min(planetLevel*7,160),3,10+planetLevel*.7,7)}}
+          }
+          if(e.burst<=0&&planetLevel>1){e.burst=Math.max(1.25,2.25-planetLevel*.025);for(let k=0;k<10;k++){const aa=k/10*Math.PI*2+performance.now()/900;spawnEnemyShot(e,aa,300+planetLevel*4,2.8,8+planetLevel*.45,6)}}
+        } else if(planetLevel>=2&&e.shoot<=0){e.shoot=Math.max(.62,1.55-planetLevel*.025)+rand(0,.45);const ea=Math.atan2(p.y-e.y,p.x-e.x);spawnEnemyShot(e,ea,250+Math.min(planetLevel*18,190),2.4,5+planetLevel*.65,6)}
+        if(dist<e.r+p.r)damagePlayer(e.damage);
       }
-      function draw(){const cam=camera(),sx=shake?rand(-shake,shake):0,sy=shake?rand(-shake,shake):0;x.save();x.clearRect(0,0,c.width,c.height);x.translate(-cam.x+sx,-cam.y+sy);x.fillStyle=planetLevel===1?'#173a28':planetLevel===2?'#3b1f52':'#6b2e12';x.fillRect(0,0,W,H);x.strokeStyle='rgba(255,255,255,.035)';for(let gx=0;gx<W;gx+=120){x.beginPath();x.moveTo(gx,0);x.lineTo(gx,H);x.stroke()}for(let gy=0;gy<H;gy+=120){x.beginPath();x.moveTo(0,gy);x.lineTo(W,gy);x.stroke()}
-        for(const t of trees){x.fillStyle='#5b3b21';x.fillRect(t.x-5,t.y,10,24);x.fillStyle='#2c7c43';x.beginPath();x.arc(t.x,t.y,t.r,0,Math.PI*2);x.fill()}for(const r of rocks){x.fillStyle='#71808a';x.beginPath();x.arc(r.x,r.y,r.r,0,Math.PI*2);x.fill()}
-        for(const d of drops){x.fillStyle='#7df7a6';x.beginPath();x.arc(d.x,d.y,d.r+Math.sin(performance.now()/120)*2,0,Math.PI*2);x.fill()}
-        for(const s of shots){x.fillStyle=s.enemy?'#ff9a58':'#f8ef76';x.beginPath();x.arc(s.x,s.y,s.r,0,Math.PI*2);x.fill()}
-        for(const e of enemies){if(e.boss){x.save();x.strokeStyle=planetLevel===1?'rgba(120,220,255,.65)':planetLevel===2?'rgba(210,140,255,.7)':'rgba(255,150,70,.75)';x.lineWidth=10;x.beginPath();x.arc(e.x,e.y,e.r+16+Math.sin(performance.now()/120)*4,0,Math.PI*2);x.stroke();x.restore()}x.fillStyle=e.boss?(planetLevel===1?'#267aa3':planetLevel===2?'#7b2cbf':'#c85f1e'):(e.hit>0?'#ffffff':'#d84848');x.beginPath();x.arc(e.x,e.y,e.r,0,Math.PI*2);x.fill();x.fillStyle='rgba(0,0,0,.55)';x.fillRect(e.x-e.r,e.y-e.r-13,e.r*2,6);x.fillStyle=e.boss?(planetLevel===1?'#79d8ff':planetLevel===2?'#d28cff':'#ffad66'):'#ff6b6b';x.fillRect(e.x-e.r,e.y-e.r-13,e.r*2*(e.hp/e.maxHp),6);if(e.boss){x.fillStyle='#fff';x.font='bold 18px system-ui';x.textAlign='center';x.fillText((planetLevel===1?'TERRA':planetLevel===2?'VIOLET':'EMBER')+' OVERLORD',e.x,e.y-e.r-24)}}
-        const cam2=camera(),wx=mouse.x+cam2.x,wy=mouse.y+cam2.y,ang=Math.atan2(wy-p.y,wx-p.x);x.save();x.translate(p.x,p.y);x.rotate(ang);x.fillStyle='#d7eaff';x.fillRect(8,-4,26,8);x.restore();x.fillStyle=p.ifr>0?'#9cf4ff':'#5aa8ff';x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);x.fill();for(const q of particles){x.globalAlpha=Math.max(0,q.life*2);x.fillStyle=q.kind==='muzzle'?'#fff2a8':'#ffb084';x.beginPath();x.arc(q.x,q.y,q.r,0,Math.PI*2);x.fill();x.globalAlpha=1}x.restore();
-        x.fillStyle='rgba(0,0,0,.48)';x.fillRect(18,18,240,54);x.fillStyle='#fff';x.font='bold 15px system-ui';x.fillText(planetLevel===1?'TERRA':planetLevel===2?'VIOLET':'EMBER',32,40);x.font='12px system-ui';x.fillStyle='#bcd0dc';x.fillText('Conquest '+Math.min(100,Math.round(p.kills/16*100))+'%',32,59);const boss=enemies.find(e=>e.boss);if(boss&&!won){const bx=boss.x-cam.x,by=boss.y-cam.y;if(bx<30||bx>c.width-30||by<30||by>c.height-30){const cx=c.width/2,cy=c.height/2,a=Math.atan2(by-cy,bx-cx),mx=clamp(cx+Math.cos(a)*(c.width/2-55),45,c.width-45),my=clamp(cy+Math.sin(a)*(c.height/2-55),45,c.height-45);x.save();x.translate(mx,my);x.rotate(a);x.fillStyle='#e7b0ff';x.beginPath();x.moveTo(18,0);x.lineTo(-10,-10);x.lineTo(-10,10);x.closePath();x.fill();x.restore();x.fillStyle='#fff';x.font='bold 12px system-ui';x.textAlign='center';x.fillText('OVERLORD',mx,my-18)}}
-      }
-      function updateUI(){ui.lvl.textContent=planetLevel;ui.kills.textContent=p.kills;ui.dmg.textContent=p.damage;ui.ammo.textContent=p.reloading?'RELOADING':p.ammo+' / '+p.maxAmmo;ui.hpText.textContent=Math.ceil(p.hp)+' / '+p.maxHp;ui.hpBar.style.width=(p.hp/p.maxHp*100)+'%';ui.xpText.textContent=p.xp+' / '+p.xpNeed;ui.xpBar.style.width=(p.xp/p.xpNeed*100)+'%';let cq=bossSpawned?90:Math.min(85,Math.round((7-Math.min(7,enemies.filter(e=>!e.boss).length))/7*85));if(won)cq=100;ui.conqText.textContent=cq+'%';ui.conqBar.style.width=cq+'%';root.querySelector('.title').textContent='PLANET CONQUEROR — '+(planetLevel===1?'TERRA':planetLevel===2?'VIOLET':'EMBER');root.querySelector('.row span').textContent='Health';root.querySelectorAll('.row span')[4].textContent=(planetLevel===1?'Terra':planetLevel===2?'Violet':'Ember')+' Conquest';ui.bossStatus.innerHTML=bossSpawned?(won?'<span class="boss">Overlord defeated</span>':'<span class="boss">'+(planetLevel===1?'TERRA':planetLevel===2?'VIOLET':'EMBER')+' OVERLORD ACTIVE</span>'):'Overlord dormant — defeat all enemies'}
-      function pointer(e){const r=c.getBoundingClientRect();mouse.x=(e.clientX-r.left)*c.width/r.width;mouse.y=(e.clientY-r.top)*c.height/r.height}
-      root.addEventListener('keydown',e=>{if(['w','a','s','d','shift'].includes(e.key.toLowerCase())){keys[e.key.toLowerCase()]=true;e.preventDefault()}});root.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});c.addEventListener('pointermove',pointer);c.addEventListener('pointerdown',e=>{pointer(e);mouse.down=true;shoot();c.setPointerCapture?.(e.pointerId)});c.addEventListener('pointerup',()=>mouse.down=false);let fire=0;function loop(t){let dt=Math.min(.033,(t-last)/1000);last=t;fire-=dt;if(mouse.down&&fire<=0){shoot();fire=.16}update(dt);draw();requestAnimationFrame(loop)}root.querySelector('#restart').addEventListener('click',()=>{reset();root.focus()});makeTerrain();reset();root.focus();requestAnimationFrame(loop)
-    })();
+      for(const s of shots){if(s.enemy){if(s.life>0&&Math.hypot(s.x-p.x,s.y-p.y)<s.r+p.r&&p.ifr<=0){s.life=0;damagePlayer(s.damage)}continue}for(const e of enemies){if(s.life>0&&!e.dead&&Math.hypot(s.x-e.x,s.y-e.y)<s.r+e.r){let dmg=s.damage*(hasDebuff('frenzy')?1.12:1);e.hp-=dmg;e.hit=.08;s.life=0;burst(s.x,s.y);if(e.hp<=0)e.dead=true;break}}}
+      enemies=enemies.filter(e=>{if(e.dead){killEnemy(e);return false}return true});
+      if(gameState==='playing'&&pendingPowerChoices>0){openCards('resume');return}
+      if(gameState==='playing'&&!bossSpawned&&totalEnemiesSpawned>=cap&&enemies.filter(e=>!e.boss).length===0){if(!bossDraftDone){bossDraftDone=true;openCards('spawnBoss',true);return}else{bossSpawned=true;spawnEnemy(true);showMsg(currentPlanet+' OVERLORD HAS AWAKENED',1500)}}
+      for(const q of particles){q.x+=q.vx*dt;q.y+=q.vy*dt;q.life-=dt;q.vx*=.94;q.vy*=.94}particles=particles.filter(q=>q.life>0);
+      for(const d of drops){d.life-=dt;if(Math.hypot(d.x-p.x,d.y-p.y)<35){const heal=hasDebuff('scarcity')?2:4;p.hp=Math.min(p.maxHp,p.hp+heal);d.life=0}}drops=drops.filter(d=>d.life>0);updateAtmosphere(dt);shake=Math.max(0,shake-35*dt);updateUI()
+    }
+
+    function palette(){const hue=(planetLevel*47)%360;return {ground:`hsl(${hue} 38% 18%)`,tree:`hsl(${(hue+75)%360} 42% 34%)`,rock:`hsl(${(hue+210)%360} 14% 48%)`,boss:`hsl(${(hue+170)%360} 72% 54%)`,bossGlow:`hsla(${(hue+170)%360} 85% 68% / .7)`}}
+    function draw(){const pal=palette(),cam=camera(),sx=shake?rand(-shake,shake):0,sy=shake?rand(-shake,shake):0;ctx.save();ctx.clearRect(0,0,c.width,c.height);ctx.translate(-cam.x+sx,-cam.y+sy);ctx.fillStyle=pal.ground;ctx.fillRect(0,0,W,H);ctx.strokeStyle='rgba(255,255,255,.035)';for(let gx=0;gx<W;gx+=120){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke()}for(let gy=0;gy<H;gy+=120){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke()}
+      for(const t of trees){ctx.fillStyle='#4c3426';ctx.fillRect(t.x-5,t.y,10,24);ctx.fillStyle=pal.tree;ctx.beginPath();ctx.arc(t.x,t.y,t.r,0,Math.PI*2);ctx.fill()}for(const r of rocks){ctx.fillStyle=pal.rock;ctx.beginPath();ctx.arc(r.x,r.y,r.r,0,Math.PI*2);ctx.fill()}
+      for(const d of drops){ctx.fillStyle='#7df7a6';ctx.beginPath();ctx.arc(d.x,d.y,d.r+Math.sin(performance.now()/120)*2,0,Math.PI*2);ctx.fill()}
+      for(const s of shots){ctx.fillStyle=s.enemy?'#ff9a58':'#f8ef76';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill()}
+      for(const e of enemies){if(e.boss){ctx.save();ctx.strokeStyle=pal.bossGlow;ctx.lineWidth=10;ctx.beginPath();ctx.arc(e.x,e.y,e.r+16+Math.sin(performance.now()/120)*4,0,Math.PI*2);ctx.stroke();ctx.restore()}ctx.fillStyle=e.boss?pal.boss:(e.hit>0?'#fff':'#d84848');ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(0,0,0,.58)';ctx.fillRect(e.x-e.r,e.y-e.r-13,e.r*2,6);ctx.fillStyle=e.boss?'#7fe7ff':'#ff6b6b';ctx.fillRect(e.x-e.r,e.y-e.r-13,e.r*2*clamp(e.hp/e.maxHp,0,1),6);if(e.boss){ctx.fillStyle='#fff';ctx.font='bold 18px system-ui';ctx.textAlign='center';ctx.fillText(currentPlanet+' OVERLORD',e.x,e.y-e.r-24)}}
+      const wx=mouse.x+cam.x,wy=mouse.y+cam.y,ang=Math.atan2(wy-p.y,wx-p.x);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(ang);ctx.fillStyle='#d7eaff';ctx.fillRect(8,-4,26,8);ctx.restore();ctx.fillStyle=p.ifr>0?'#9cf4ff':'#5aa8ff';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();for(const q of particles){ctx.globalAlpha=Math.max(0,q.life*2);ctx.fillStyle=q.kind==='muzzle'?'#fff2a8':'#ffb084';ctx.beginPath();ctx.arc(q.x,q.y,q.r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1}ctx.restore();
+      ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(18,18,300,72);ctx.fillStyle='#fff';ctx.font='bold 15px system-ui';ctx.textAlign='left';ctx.fillText(currentPlanet||'DEEP SPACE',32,40);ctx.font='12px system-ui';ctx.fillStyle='#bcd0dc';ctx.fillText('Planet '+planetLevel+' · '+(currentDebuff?currentDebuff.name:'STABLE CONDITIONS'),32,59);ctx.fillText('Energy '+Math.ceil(p.energy)+' / '+Math.ceil(p.maxEnergy)+(p.energyLocked?' · RECHARGING':''),32,77);
+      drawAtmosphere();const boss=enemies.find(e=>e.boss);if(boss&&gameState==='playing'){const bx=boss.x-cam.x,by=boss.y-cam.y;if(bx<30||bx>c.width-30||by<30||by>c.height-30){const cx=c.width/2,cy=c.height/2,a=Math.atan2(by-cy,bx-cx),mx=clamp(cx+Math.cos(a)*(c.width/2-55),45,c.width-45),my=clamp(cy+Math.sin(a)*(c.height/2-55),45,c.height-45);ctx.save();ctx.translate(mx,my);ctx.rotate(a);ctx.fillStyle='#e7b0ff';ctx.beginPath();ctx.moveTo(18,0);ctx.lineTo(-10,-10);ctx.lineTo(-10,10);ctx.closePath();ctx.fill();ctx.restore();ctx.fillStyle='#fff';ctx.font='bold 12px system-ui';ctx.textAlign='center';ctx.fillText('OVERLORD',mx,my-18)}}
+    }
+
+    function updateUI(){ui.lvl.textContent=planetLevel;ui.playerLvl.textContent=p.level;ui.kills.textContent=p.kills;ui.dmg.textContent=Math.round(p.damage);ui.energyChip.textContent=Math.ceil(p.energy)+' / '+Math.ceil(p.maxEnergy);ui.hpText.textContent=Math.ceil(p.hp)+' / '+Math.ceil(p.maxHp);ui.hpBar.style.width=clamp(p.hp/p.maxHp*100,0,100)+'%';ui.energyText.textContent=(p.energyLocked?'RECHARGING · ':'')+Math.ceil(p.energy)+' / '+Math.ceil(p.maxEnergy);ui.energyBar.style.width=clamp(p.energy/p.maxEnergy*100,0,100)+'%';ui.xpText.textContent=Math.floor(p.xp)+' / '+p.xpNeed;ui.xpBar.style.width=clamp(p.xp/p.xpNeed*100,0,100)+'%';const cap=enemyCap(),alive=enemies.filter(e=>!e.boss).length,done=Math.max(0,totalEnemiesSpawned-alive),cq=bossSpawned?90:Math.min(88,Math.round(done/cap*88));ui.conqText.textContent=(gameState==='transition'?100:cq)+'%';ui.conqBar.style.width=(gameState==='transition'?100:cq)+'%';ui.conqLabel.textContent=(currentPlanet||'Planet')+' Conquest';const ready=gameState==='cards'||pendingPowerChoices>0,progress=p.levelUpsSinceCard,away=ready?0:3-progress;ui.cardText.textContent=ready?'POWER READY':away+' level-up'+(away===1?'':'s')+' away';ui.cardBar.style.width=(ready?100:(progress/3)*100)+'%';$('.title').textContent='PLANET CONQUEROR — '+(currentPlanet||'DEEP SPACE');ui.subtitle.textContent=currentDebuff?currentDebuff.desc:'Conquer endless worlds. Adapt. Evolve. Survive.';ui.debuffStatus.textContent=currentDebuff?currentDebuff.name+': '+currentDebuff.desc:'STABLE CONDITIONS';ui.bossStatus.innerHTML=bossSpawned?'<span class="boss">'+currentPlanet+' OVERLORD ACTIVE</span>':(bossDraftDone&&gameState==='cards'?'<span class="boss">OVERLORD INBOUND — SELECT 2 POWERS</span>':'Overlord dormant — '+Math.max(0,cap-totalEnemiesSpawned+alive)+' hostiles remain')}
+    function pointer(e){const r=c.getBoundingClientRect();mouse.x=(e.clientX-r.left)*c.width/r.width;mouse.y=(e.clientY-r.top)*c.height/r.height}
+    root.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(['w','a','s','d','shift'].includes(k)){keys[k]=true;e.preventDefault()}if(k==='escape'){e.preventDefault();if(gameState==='playing')pause();else if(gameState==='paused')resume()}});root.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false});window.addEventListener('blur',()=>{if(gameState==='playing')pause()});
+    c.addEventListener('pointermove',pointer);c.addEventListener('pointerdown',e=>{if(gameState!=='playing')return;pointer(e);mouse.down=true;shoot();c.setPointerCapture?.(e.pointerId)});c.addEventListener('pointerup',()=>mouse.down=false);c.addEventListener('pointercancel',()=>mouse.down=false);
+    $('#playBtn').addEventListener('click',beginRun);$('#retryBtn').addEventListener('click',beginRun);$('#deathTitleBtn').addEventListener('click',returnTitle);$('#pauseTitleBtn').addEventListener('click',returnTitle);$('#pauseBtn').addEventListener('click',pause);$('#resumeBtn').addEventListener('click',resume);$('#restart').addEventListener('click',beginRun);
+    function loop(t){let dt=Math.min(.033,Math.max(0,(t-last)/1000));last=t;if(messageTimer>0){messageTimer-=dt;if(messageTimer<=0){ui.msg.style.opacity='0';ui.msg.style.transform='translateY(-8px)'}}if(gameState==='playing'&&mouse.down)shoot();update(dt);draw();requestAnimationFrame(loop)}
+    currentPlanet='';makeTerrain();updateUI();setScreen(ui.titleScreen);requestAnimationFrame(loop)
+  })();
   </script>
 </div>
